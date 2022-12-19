@@ -1,7 +1,7 @@
 from aiogram import types, Dispatcher
-from config import bot
-from config import ADMINS
+from config import bot, ADMINS
 from random import choice
+
 
 async def game (message: types.Message):
     games=['🏀','🎲','⚽','🎯','🎳','🎰']
@@ -15,6 +15,12 @@ async def game (message: types.Message):
 
         else:
             await message.answer('Пиши в группу')
+
+
+
+
+
+
 
 
 def register_handlers_admin(dp: Dispatcher):
