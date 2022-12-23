@@ -4,10 +4,9 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State,StatesGroup
 from keyboards import client_kb
-
+from database.bot_db import sql_command_insert
 
 class FSMAdmin(StatesGroup):
-    id=State()
     name=State()
     direction=State()
     age=State()
@@ -20,20 +19,13 @@ async def fsm_start(message: types.Message):
          if message.from_user.id not in ADMINS:
              await message.answer('Ты не админ!')
          else:
-            await FSMAdmin.id.set()
-            await message.answer('Введите ваш id',reply_markup=client_kb.cancel_markup)
+            await FSMAdmin.name.set()
+            await message.answer('Введите ваше имя',reply_markup=client_kb.cancel_markup)
      else:
          await message.answer('Пиши в личку!')
 
 
-async def load_id(message: types.Message, state:FSMContext):
-    if not message.text.isdigit():
-        await message.answer("Пиши только числа")
-    else:
-        async with state.proxy() as data:
-            data['id']=message.text
-        await FSMAdmin.next()
-        await message.answer('Как тебя зовут?')
+
 
 async def load_name(message: types.Message, state:FSMContext):
     async with state.proxy() as data:
@@ -63,7 +55,7 @@ async def load_age(message: types.Message, state:FSMContext):
 async def load_group(message: types.Message, state:FSMContext):
     async with state.proxy() as data:
         data['group']=message.text
-    await message.answer(f"ID:{data['id']} \n Имя:{data['name']}\n Направление:{data['direction']}"
+    await message.answer(f"Имя:{data['name']}\n Направление:{data['direction']}"
                          f" \n Возраст:{data['age']}\n Группа: {data['group']}")
     await FSMAdmin.next()
     await message.answer('Все верно?',reply_markup=client_kb.submit_markup)
@@ -71,6 +63,7 @@ async def load_group(message: types.Message, state:FSMContext):
 
 async def submit(message: types.Message, state:FSMContext):
     if message.text.lower() == "да":
+        await sql_command_insert(state)
         await state.finish()
         await message.answer("Вы зарегистрированы")
     elif message.text.lower() == "нет":
@@ -89,7 +82,6 @@ def register_handlers_fsm_admin_mentor(disp:Dispatcher):
      disp.register_message_handler(cansel_fsm,state="*", commands=['cancel'])
      disp.register_message_handler(cansel_fsm,Text(equals='cancel',ignore_case=True), state="*")
      disp.register_message_handler(fsm_start, commands=['reg'])
-     disp.register_message_handler(load_id, state=FSMAdmin.id)
      disp.register_message_handler(load_name, state=FSMAdmin.name)
      disp.register_message_handler(load_direction, state=FSMAdmin.direction)
      disp.register_message_handler(load_age, state=FSMAdmin.age)

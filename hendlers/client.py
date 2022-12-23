@@ -1,6 +1,7 @@
 from aiogram import types,Dispatcher
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from config import bot,disp
+from database.bot_db import sql_command_random
 
 
 
@@ -66,9 +67,14 @@ async def dice(message: types.Message):
     else:
         await message.answer('Нужно писать в группе')
 
+async def get_random_user(message: types.Message):
+    await sql_command_random(message)
+
+
 def register_hendlers_client(disp:Dispatcher):
     disp.register_message_handler(start, commands=['start'])
     disp.register_message_handler(quiz, commands=['quiz'])
     disp.register_message_handler(mem, commands=['mem'])
     disp.register_message_handler(pin, commands=['pin'], commands_prefix='!/')
     disp.register_message_handler(dice, commands=['dice'])
+    disp.register_message_handler(get_random_user, commands=['get'])
