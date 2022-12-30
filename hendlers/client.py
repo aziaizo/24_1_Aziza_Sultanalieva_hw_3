@@ -2,7 +2,7 @@ from aiogram import types,Dispatcher
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from config import bot,disp
 from database.bot_db import sql_command_random
-
+from parser_.serials import parser
 
 
 async def start(message: types.Message):
@@ -71,6 +71,32 @@ async def get_random_user(message: types.Message):
     await sql_command_random(message)
 
 
+
+async def get_top_serials(message:types.Message):
+    serial=parser()
+    for i in serial:
+        await message.answer(
+                    f"{i['link']}\n\n"
+                    f"{i['title']}\n"
+                    f"#{i['type']}\n"
+                    f"#{i['genre']}\n"
+                )
+
+async def get_top_ten_serials(message:types.Message):
+    serial=parser()
+    a=0
+    for i in serial:
+        if a < 10:
+            await message.answer(
+                    f"{i['link']}\n\n"
+                    f"{i['title']}\n"
+                    f"#{i['type']}\n"
+                    f"#{i['genre']}\n"
+                )
+            a+=1
+
+
+
 def register_hendlers_client(disp:Dispatcher):
     disp.register_message_handler(start, commands=['start'])
     disp.register_message_handler(quiz, commands=['quiz'])
@@ -78,3 +104,5 @@ def register_hendlers_client(disp:Dispatcher):
     disp.register_message_handler(pin, commands=['pin'], commands_prefix='!/')
     disp.register_message_handler(dice, commands=['dice'])
     disp.register_message_handler(get_random_user, commands=['get'])
+    disp.register_message_handler(get_top_serials, commands=['serials'])
+    disp.register_message_handler(get_top_ten_serials, commands=['top10'])
